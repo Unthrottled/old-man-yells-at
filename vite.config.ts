@@ -3,9 +3,9 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/deal-with-it-generator/",
+  base: "/",
   plugins: [react()],
   build: {
-    outDir: "dist/deal-with-it-generator",
+    outDir: "dist/",
   },
 });

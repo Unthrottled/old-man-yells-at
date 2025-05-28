@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && rm -f dist/deal-with-it-generator/_redirects && cp public/_redirects dist/",
+    "build": "tsc -b && vite build",
+    "release": "npm run build && npm run sync",
+    "sync": "ts-node --project buildSrc/tsconfig.json buildSrc/src/AssetUpload.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

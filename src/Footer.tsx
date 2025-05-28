@@ -8,9 +8,9 @@ export default function Title() {
     <div className="text-center">
       <Text className="sm:flex justify-center gap-1" type="secondary">
         <div>
-          Made with passion by{" "}
-          <Link href="https://klimer.eu/" target="_blank">
-            Igor Klimer
+          Made for LOLs by{" "}
+          <Link href="https://unthrottled.io/" target="_blank">
+            Unthrottled
           </Link>
           .
         </div>
@@ -18,7 +18,7 @@ export default function Title() {
           Source code on
           <Link
             className="ms-2"
-            href="https://github.com/klimeryk/dealwithit"
+            href="https://github.com/Unthrottled/old-man-yells-at"
             target="_blank"
           >
             <GithubOutlined className="mr-1" />

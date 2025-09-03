@@ -22,7 +22,7 @@ export const createImageSlice: StateCreator<ImageSlice> = (set) => ({
       inputFile: file,
       inputImageDataUrl: dataUrl,
       mode: detectedMode,
-      status: "DETECTING",
+      status: "READY",
     }));
   },
 });

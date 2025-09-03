@@ -16,6 +16,8 @@ function App() {
   const messageApi = useBoundStore((state) => state.messageApi);
   const setDrawerOpen = useBoundStore((state) => state.setDrawerOpen);
   const status = useBoundStore((state) => state.status);
+  const initializeBackgroundImage = useBoundStore((state) => state.initializeBackgroundImage);
+  const setStatus = useBoundStore((state) => state.setStatus);
   const inputImageRef = useRef<null | HTMLImageElement>(null);
   const mode = useBoundStore((state) => state.mode);
 
@@ -27,6 +29,12 @@ function App() {
       });
     }
   }, [mode, messageApi]);
+
+  useEffect(() => {
+    if (status === "READY" && inputImageRef.current && inputImageRef.current.naturalWidth > 0) {
+      initializeBackgroundImage(inputImageRef.current.naturalWidth, inputImageRef.current.naturalHeight);
+    }
+  }, [status, initializeBackgroundImage]);
 
   function renderInputImage() {
     return (

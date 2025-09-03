@@ -59,27 +59,25 @@ function SettingsDrawer() {
             >
               MediaPipe Face Detector task
             </Link>{" "}
-            to automatically scale and position glasses on the detected faces.
+            to automatically detect and position the old man character.
           </li>
           <li>
-            Extensive customization options for glasses:
+            Extensive customization options for the old man:
             <ul>
               <li>
-                Placement of glasses anywhere on the input image (including
+                Placement anywhere on the input image (including
                 slightly going outside it).
               </li>
-              <li>Change the size of glasses.</li>
+              <li>Change the size of the old man character.</li>
               <li>
-                Change the color of glasses to any RGBA color (only applies to
-                Classic style).
+                Customize facial expressions and yelling intensity.
               </li>
-              <li>No limit on the number of glasses.</li>
-              <li>Flip the glasses vertically or horizontally.</li>
+              <li>No limit on the number of old men (for maximum yelling chaos).</li>
+              <li>Flip the character vertically or horizontally.</li>
               <li>
-                Customize the direction from which the glasses appear on the
-                image.
+                Customize the direction from which the old man appears.
               </li>
-              <li>Different types of glasses.</li>
+              <li>Different old man character styles and expressions.</li>
             </ul>
           </li>
           <li>

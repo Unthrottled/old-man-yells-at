@@ -11,23 +11,23 @@ import {
 } from "@dnd-kit/sortable";
 import { Alert, Button, Card } from "antd";
 
-import SortableGlassesItem from "./SortableGlassesItem.tsx";
+import SortableOldManItem from "./SortableOldManItem.tsx";
 import { useBoundStore } from "./store/index.ts";
 
-function SortableGlassesList() {
+function SortableOldMenList() {
   const status = useBoundStore((state) => state.status);
-  const glassesList = useBoundStore((state) => state.glassesList);
-  const addDefaultGlasses = useBoundStore((state) => state.addDefault);
-  const reorderGlasses = useBoundStore((state) => state.reorder);
+  const oldMenList = useBoundStore((state) => state.oldMenList);
+  const addDefaultOldMan = useBoundStore((state) => state.addDefault);
+  const reorderOldMen = useBoundStore((state) => state.reorder);
 
-  function renderGlassesItem(glasses: Glasses) {
-    return <SortableGlassesItem key={glasses.id} glasses={glasses} />;
+  function renderOldManItem(oldMan: OldMan) {
+    return <SortableOldManItem key={oldMan.id} oldMan={oldMan} />;
   }
 
-  function handleGlassesItemDragEnd({ active, over }: DragEndEvent) {
+  function handleOldManItemDragEnd({ active, over }: DragEndEvent) {
     const oldId = active.id as nanoId;
     const newId = over?.id as nanoId;
-    reorderGlasses(oldId, newId);
+    reorderOldMen(oldId, newId);
   }
 
   const cardStyles = {
@@ -40,7 +40,7 @@ function SortableGlassesList() {
     <Card
       className="mt-2"
       size="small"
-      title="Glasses"
+      title="Old Men"
       styles={cardStyles}
       loading={status === "DETECTING"}
       extra={
@@ -48,7 +48,7 @@ function SortableGlassesList() {
           size="small"
           icon={<PlusCircleOutlined />}
           disabled={status !== "READY"}
-          onClick={addDefaultGlasses}
+          onClick={addDefaultOldMan}
         >
           Add
         </Button>
@@ -57,26 +57,26 @@ function SortableGlassesList() {
       <DndContext
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
         collisionDetection={closestCenter}
-        onDragEnd={handleGlassesItemDragEnd}
+        onDragEnd={handleOldManItemDragEnd}
       >
         <SortableContext
-          items={glassesList}
+          items={oldMenList}
           strategy={verticalListSortingStrategy}
         >
           <ul>
-            {glassesList.map(renderGlassesItem)}
-            {glassesList.length === 0 && (
+            {oldMenList.map(renderOldManItem)}
+            {oldMenList.length === 0 && (
               <Alert
                 className="rounded-b-md"
                 banner
-                message="No glasses!?"
-                description="How can you deal with it without any glasses? How about adding at least one pair?"
+                message="No old men!?"
+                description="How can anyone yell at anything without at least one grumpy old man? Add one now!"
                 type="warning"
                 action={
                   <Button
                     size="small"
                     icon={<PlusCircleOutlined />}
-                    onClick={addDefaultGlasses}
+                    onClick={addDefaultOldMan}
                   >
                     Add
                   </Button>
@@ -90,4 +90,4 @@ function SortableGlassesList() {
   );
 }
 
-export default SortableGlassesList;
+export default SortableOldMenList;

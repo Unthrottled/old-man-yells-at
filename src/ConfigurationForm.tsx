@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { useMemo, useState } from "react";
 
-import { DEFAULT_GLASSES_SIZE } from "./lib/glasses.ts";
+import { DEFAULT_OLD_MAN_SIZE } from "./lib/old-man.ts";
 import { useBoundStore } from "./store/index.ts";
 
 const EMOJI_GENERATION_START_MARK = "EmojiGenerationStartMark";
@@ -33,7 +33,7 @@ export default function ConfigurationForm({
 
   const inputFile = useBoundStore((state) => state.inputFile);
   const setOutputImage = useBoundStore((state) => state.setOutputImage);
-  const glassesList = useBoundStore((state) => state.glassesList);
+  const oldMenList = useBoundStore((state) => state.oldMenList);
   const imageOptions = useBoundStore((state) => state.imageOptions);
   const posthog = useBoundStore((state) => state.posthog);
   const status = useBoundStore((state) => state.status);
@@ -90,7 +90,7 @@ export default function ConfigurationForm({
 
     gifWorker.postMessage({
       configurationOptions,
-      glassesList: glassesList,
+      oldMenList: oldMenList,
       imageOptions,
       inputImage: {
         renderedWidth: inputImageRef.current.width,
@@ -114,7 +114,7 @@ export default function ConfigurationForm({
           frameDelay: 120,
           lastFrameDelay: { enabled: true, value: 1000 },
           looping: { mode: "infinite", loops: 5 },
-          size: DEFAULT_GLASSES_SIZE,
+          size: DEFAULT_OLD_MAN_SIZE,
         } as ConfigurationOptions
       }
     >
@@ -185,7 +185,7 @@ export default function ConfigurationForm({
       </Form.Item>
       <Button
         block
-        disabled={glassesList.length === 0}
+        disabled={oldMenList.length === 0}
         type="primary"
         size="large"
         onClick={generateOutputImage}

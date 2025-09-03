@@ -5,10 +5,10 @@ import type { ResizeClass } from "@jimp/plugin-resize";
 import { GifCodec } from "gifwrap";
 
 import {
-  getGlassesImages,
+  getOldManImages,
   maybeFlipImage,
   prepareReportProgress,
-  renderGlassesFrame,
+  renderOldManFrame,
 } from "./utils.ts";
 
 const { Jimp } = self;
@@ -33,7 +33,7 @@ function getProcessedImage(
 self.onmessage = (event: MessageEvent) => {
   const {
     configurationOptions,
-    glassesList,
+    oldMenList,
     inputFile,
     inputImage,
     imageOptions,
@@ -63,13 +63,13 @@ self.onmessage = (event: MessageEvent) => {
     const frames = [];
     const scaleX = width / renderedWidth;
     const scaleY = height / renderedHeight;
-    const glassesImages = await getGlassesImages(glassesList, scaleX, scaleY);
+    const oldManImages = await getOldManImages(oldMenList, scaleX, scaleY);
     reportProgress();
     for (let frameNumber = 0; frameNumber < numberOfFrames + 1; ++frameNumber) {
       frames.push(
-        renderGlassesFrame(
-          glassesList,
-          glassesImages,
+        renderOldManFrame(
+          oldMenList,
+          oldManImages,
           image,
           scaleX,
           scaleY,

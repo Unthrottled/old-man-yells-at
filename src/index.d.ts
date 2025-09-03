@@ -22,16 +22,17 @@ interface WithNanoId {
   id: nanoId;
 }
 
-type GlassesDirection = "up" | "down" | "right" | "left";
+type OldManDirection = "up" | "down" | "right" | "left";
 
-type Glasses = WithFlip &
+type OldMan = WithFlip &
   WithNanoId & {
     coordinates: Coordinates;
-    direction: GlassesDirection;
+    direction: OldManDirection;
     isSelected: boolean;
     style: string;
-    styleColor: string;
     styleUrl: string;
+    expression: "angry" | "furious" | "disappointed" | "outraged";
+    yellingIntensity: number;
     size: Size;
   };
 

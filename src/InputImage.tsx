@@ -3,7 +3,7 @@ import { DndContext } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { Button } from "antd";
 
-import GlassesDraggable from "./GlassesDraggable.tsx";
+import OldManDraggable from "./OldManDraggable.tsx";
 import FlipH from "./icons/FlipH.tsx";
 import FlipV from "./icons/FlipV.tsx";
 import { restrictToParentWithOffset } from "./lib/drag-modifiers.ts";
@@ -24,7 +24,7 @@ function InputImage({ onInputImageLoad, inputImageRef }: InputImageProps) {
   const imageOptions = useBoundStore((state) => state.imageOptions);
   const toggleImageOption = useBoundStore((state) => state.toggleImageOption);
   const inputImageDataUrl = useBoundStore((state) => state.inputImageDataUrl);
-  const glassesList = useBoundStore((state) => state.glassesList);
+  const oldMenList = useBoundStore((state) => state.oldMenList);
   const updateCoordinates = useBoundStore((state) => state.updateCoordinates);
 
   const imageStyle = {
@@ -61,11 +61,11 @@ function InputImage({ onInputImageLoad, inputImageRef }: InputImageProps) {
     updateCoordinates(active.id as nanoId, delta);
   }
 
-  function renderGlasses(glasses: Glasses) {
+  function renderOldMan(oldMan: OldMan) {
     return (
-      <GlassesDraggable
-        key={glasses.id}
-        glasses={glasses}
+      <OldManDraggable
+        key={oldMan.id}
+        oldMan={oldMan}
         inputImageRef={inputImageRef}
       />
     );
@@ -88,7 +88,7 @@ function InputImage({ onInputImageLoad, inputImageRef }: InputImageProps) {
             onLoad={onInputImageLoad}
             draggable={false}
           />
-          {glassesList.map(renderGlasses)}
+          {oldMenList.map(renderOldMan)}
         </div>
         <div className="flex justify-between w-full">
           <div className="flex gap-2">

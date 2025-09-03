@@ -1,53 +1,32 @@
-import type { Bitmap, Jimp } from "@jimp/core";
-import type { Blit } from "@jimp/plugin-blit";
-import type { ResizeClass } from "@jimp/plugin-resize";
-import { BitmapImage, GifFrame, GifUtil } from "gifwrap";
+import { BitmapImage } from "gifwrap";
+import Jimp from "jimp";
 
-const { Jimp } = self;
+import type { Blit, ResizeClass } from "../index.d.ts";
 
-export function prepareReportProgress(numberOfFrames: number) {
-  let stepNumber = 0;
-  const numberOfSteps = numberOfFrames + 4;
-  return function reportProgress() {
-    ++stepNumber;
-    self.postMessage({
-      type: "PROGRESS",
-      progress: (stepNumber / numberOfSteps) * 100,
-    });
-  };
-}
-
-function getLastFrameDelay({
-  looping,
-  lastFrameDelay,
-  frameDelay,
-}: ConfigurationOptions) {
-  if (looping.mode === "off") {
-    // If you waited for a day, you deserve to see this workaround...
-    // Since there is no way to not loop a gif using gifwrap,
-    // let's just put a reeeeaaaaallly long delay after the last frame.
-    return 8640000;
-  }
-
+export function getFrameDelay(
+  configurationOptions: ConfigurationOptions,
+  frameNumber: number,
+  numberOfFrames: number,
+): number {
+  const { frameDelay, lastFrameDelay } = configurationOptions;
+  const isLastFrame = frameNumber === numberOfFrames - 1;
   return Math.round(
-    (lastFrameDelay.enabled && lastFrameDelay.value > 0
-      ? lastFrameDelay.value
-      : frameDelay) / 10,
+    (isLastFrame && lastFrameDelay.enabled ? lastFrameDelay.value : frameDelay) / 10,
   );
 }
 
 function getMovementForFrame(
-  direction: GlassesDirection,
+  direction: OldManDirection,
   { width: imageWidth, height: imageHeight }: Bitmap,
-  { width: glassesWidth, height: glassesHeight }: Bitmap,
+  { width: oldManWidth, height: oldManHeight }: Bitmap,
   scaledX: number,
   scaledY: number,
   frameNumber: number,
   numberOfFrames: number,
 ) {
   if (direction === "up") {
-    const yMovementPerFrame = (scaledY + glassesHeight) / numberOfFrames;
-    return { x: scaledX, y: frameNumber * yMovementPerFrame - glassesHeight };
+    const yMovementPerFrame = (scaledY + oldManHeight) / numberOfFrames;
+    return { x: scaledX, y: frameNumber * yMovementPerFrame - oldManHeight };
   }
   if (direction === "down") {
     const yMovementPerFrame = (imageHeight - scaledY) / numberOfFrames;
@@ -57,8 +36,8 @@ function getMovementForFrame(
     };
   }
   if (direction === "left") {
-    const xMovementPerFrame = (scaledX + glassesWidth) / numberOfFrames;
-    return { x: frameNumber * xMovementPerFrame - glassesWidth, y: scaledY };
+    const xMovementPerFrame = (scaledX + oldManWidth) / numberOfFrames;
+    return { x: frameNumber * xMovementPerFrame - oldManWidth, y: scaledY };
   } else {
     const xMovementPerFrame = (imageWidth - scaledX) / numberOfFrames;
     return {
@@ -68,74 +47,70 @@ function getMovementForFrame(
   }
 }
 
-export function renderGlassesFrame(
-  glassesList: Glasses[],
-  glassesImages: Record<nanoId, Jimp>,
+export function renderOldManFrame(
+  oldMenList: OldMan[],
+  oldManImages: Record<nanoId, Jimp>,
   originalImage: Jimp & Blit,
   scaleX: number,
   scaleY: number,
   frameNumber: number,
   configurationOptions: ConfigurationOptions,
-) {
+): BitmapImage {
   const { numberOfFrames, frameDelay } = configurationOptions;
   const jimpFrame = originalImage.clone();
-  for (const glasses of glassesList) {
-    const scaledX = scaleX * glasses.coordinates.x;
-    const scaledY = scaleY * glasses.coordinates.y;
+  for (const oldMan of oldMenList) {
+    const scaledX = scaleX * oldMan.coordinates.x;
+    const scaledY = scaleY * oldMan.coordinates.y;
     const movement = getMovementForFrame(
-      glasses.direction,
+      oldMan.direction,
       originalImage.bitmap,
-      glassesImages[glasses.id].bitmap,
+      oldManImages[oldMan.id].bitmap,
       scaledX,
       scaledY,
       frameNumber,
       numberOfFrames,
     );
-    jimpFrame.blit(glassesImages[glasses.id], movement.x, movement.y);
+    jimpFrame.blit(oldManImages[oldMan.id], movement.x, movement.y);
   }
   const jimpBitmap = new BitmapImage(jimpFrame.bitmap);
-  GifUtil.quantizeDekker(jimpBitmap, 64);
-  return new GifFrame(jimpBitmap, {
-    delayCentisecs:
-      frameNumber !== numberOfFrames
-        ? Math.round(frameDelay / 10)
-        : getLastFrameDelay(configurationOptions),
-  });
+  jimpBitmap.delayCentisecs = getFrameDelay(
+    configurationOptions,
+    frameNumber,
+    numberOfFrames,
+  );
+  return jimpBitmap;
 }
 
-export function maybeFlipImage(
-  image: Jimp,
-  { flipHorizontally, flipVertically }: WithFlip,
-) {
-  if (flipHorizontally || flipVertically) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (image as any).flip(flipHorizontally, flipVertically);
+function maybeFlipImage(image: Jimp, oldMan: OldMan) {
+  if (oldMan.flipHorizontally) {
+    image.flip(true, false);
   }
-
-  return image;
+  if (oldMan.flipVertically) {
+    image.flip(false, true);
+  }
 }
 
-const glassesImagesCache: Record<string, Jimp & ResizeClass> = {};
+const oldManImagesCache: Record<string, Jimp & ResizeClass> = {};
 
-export async function getGlassesImages(
-  glassesList: Glasses[],
+export async function getOldManImages(
+  oldMenList: OldMan[],
   scaleX: number,
   scaleY: number,
-) {
+): Promise<Record<nanoId, Jimp>> {
   const outputList = {} as Record<nanoId, Jimp>;
-  for (const glasses of glassesList) {
-    const cacheKey = `${glasses.styleUrl} ${glasses.size.width} ${glasses.size.height} ${scaleX} ${scaleY}`;
-    if (!glassesImagesCache[cacheKey]) {
-      const glassesImage = await Jimp.read(glasses.styleUrl);
-      glassesImagesCache[cacheKey] = glassesImage.resize(
-        scaleX * glasses.size.width,
-        scaleY * glasses.size.height,
+  for (const oldMan of oldMenList) {
+    const cacheKey = `${oldMan.styleUrl} ${oldMan.size.width} ${oldMan.size.height} ${scaleX} ${scaleY}`;
+    if (!oldManImagesCache[cacheKey]) {
+      const oldManImage = await Jimp.read(oldMan.styleUrl);
+      oldManImagesCache[cacheKey] = oldManImage.resize(
+        scaleX * oldMan.size.width,
+        scaleY * oldMan.size.height,
         Jimp.RESIZE_BICUBIC,
       );
     }
-    const glassesImage = glassesImagesCache[cacheKey].clone();
-    maybeFlipImage(glassesImage, glasses);
-    outputList[glasses.id] = glassesImage;
+    const oldManImage = oldManImagesCache[cacheKey].clone();
+    maybeFlipImage(oldManImage, oldMan);
+    outputList[oldMan.id] = oldManImage;
   }
   return outputList;
 }

@@ -3,7 +3,9 @@ import { DndContext } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { Button } from "antd";
 
-import OldManDraggable from "./OldManDraggable.tsx";
+import DraggableTarget from "./DraggableTarget.tsx";
+import StaticOldMan from "./StaticOldMan.tsx";
+import YellingZone from "./YellingZone.tsx";
 import FlipH from "./icons/FlipH.tsx";
 import FlipV from "./icons/FlipV.tsx";
 import { restrictToParentWithOffset } from "./lib/drag-modifiers.ts";
@@ -24,7 +26,7 @@ function InputImage({ onInputImageLoad, inputImageRef }: InputImageProps) {
   const imageOptions = useBoundStore((state) => state.imageOptions);
   const toggleImageOption = useBoundStore((state) => state.toggleImageOption);
   const inputImageDataUrl = useBoundStore((state) => state.inputImageDataUrl);
-  const oldMenList = useBoundStore((state) => state.oldMenList);
+  const targetImages = useBoundStore((state) => state.targetImages);
   const updateCoordinates = useBoundStore((state) => state.updateCoordinates);
 
   const imageStyle = {
@@ -61,12 +63,11 @@ function InputImage({ onInputImageLoad, inputImageRef }: InputImageProps) {
     updateCoordinates(active.id as nanoId, delta);
   }
 
-  function renderOldMan(oldMan: OldMan) {
+  function renderTargetImage(targetImage: TargetImage) {
     return (
-      <OldManDraggable
-        key={oldMan.id}
-        oldMan={oldMan}
-        inputImageRef={inputImageRef}
+      <DraggableTarget
+        key={targetImage.id}
+        targetImage={targetImage}
       />
     );
   }
@@ -88,7 +89,15 @@ function InputImage({ onInputImageLoad, inputImageRef }: InputImageProps) {
             onLoad={onInputImageLoad}
             draggable={false}
           />
-          {oldMenList.map(renderOldMan)}
+          {targetImages.map(renderTargetImage)}
+          <YellingZone 
+            canvasWidth={inputImageRef.current?.width || 500}
+            canvasHeight={inputImageRef.current?.height || 500}
+          />
+          <StaticOldMan 
+            canvasWidth={inputImageRef.current?.width || 500}
+            canvasHeight={inputImageRef.current?.height || 500}
+          />
         </div>
         <div className="flex justify-between w-full">
           <div className="flex gap-2">

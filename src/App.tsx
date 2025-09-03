@@ -9,7 +9,7 @@ import FileInput from "./FileInput.tsx";
 import Footer from "./Footer.tsx";
 import InputImage from "./InputImage.tsx";
 import SettingsDrawer from "./SettingsDrawer.tsx";
-import SortableOldMenList from "./SortableOldMenList.tsx";
+import TargetImageList from "./TargetImageList.tsx";
 import { useBoundStore } from "./store/index.ts";
 import Title from "./Title.tsx";
 
@@ -44,7 +44,7 @@ function App() {
           inputImageRef={inputImageRef}
           onInputImageLoad={handleInputImageLoad}
         />
-        <SortableOldMenList />
+        <TargetImageList />
       </>
     );
   }

@@ -22,24 +22,25 @@ interface WithNanoId {
   id: nanoId;
 }
 
-type OldManDirection = "up" | "down" | "right" | "left";
+type TargetImageDirection = "up" | "down" | "right" | "left";
 
-type OldMan = WithFlip &
+type TargetImage = WithFlip &
   WithNanoId & {
     coordinates: Coordinates;
-    direction: OldManDirection;
+    direction: TargetImageDirection;
     isSelected: boolean;
-    style: string;
-    styleUrl: string;
-    expression: "angry" | "furious" | "disappointed" | "outraged";
-    yellingIntensity: number;
+    imageUrl: string;
+    label?: string; // What the old man is yelling at
     size: Size;
   };
 
-interface LoopingOptions {
-  mode: "infinite" | "off" | "finite";
-  loops: number;
-}
+// Static old man configuration (no positioning)
+type StaticOldMan = {
+  expression: "angry" | "furious" | "disappointed" | "outraged";
+  yellingIntensity: number;
+  position: "left" | "right" | "center"; // Fixed positions
+  size: Size;
+};
 
 interface Size {
   width: number;
@@ -51,10 +52,9 @@ interface ToggleValue<Type> {
   value: Type;
 }
 
-interface ConfigurationOptions {
-  looping: LoopingOptions;
-  lastFrameDelay: ToggleValue<number>;
-  frameDelay: number;
-  numberOfFrames: number;
-  size: number;
+// Simplified configuration for static images only
+interface StaticImageOptions {
+  format: "png" | "jpg";
+  quality: number; // For JPG compression
+  size: number; // Output size
 }

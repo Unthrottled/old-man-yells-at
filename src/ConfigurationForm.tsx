@@ -3,8 +3,6 @@ import { Button } from "antd";
 import { useRef } from "react";
 
 import StaticOldManControls from "./StaticOldManControls.tsx";
-import TargetImagePicker from "./TargetImagePicker.tsx";
-import PresetScenarios from "./PresetScenarios.tsx";
 import { getOldManImageUrl, getOldManPosition } from "./lib/static-old-man.ts";
 import { useBoundStore } from "./store/index.ts";
 
@@ -16,13 +14,14 @@ function ConfigurationForm({ inputImageRef }: ConfigurationFormProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
   const status = useBoundStore((state) => state.status);
-  const targetImages = useBoundStore((state) => state.targetImages);
+  const backgroundImage = useBoundStore((state) => state.backgroundImage);
   const staticOldMan = useBoundStore((state) => state.staticOldMan);
+  const inputImageDataUrl = useBoundStore((state) => state.inputImageDataUrl);
   const setStatus = useBoundStore((state) => state.setStatus);
   const messageApi = useBoundStore((state) => state.messageApi);
 
   async function handleGenerateImage() {
-    if (!inputImageRef.current || !canvasRef.current) {
+    if (!inputImageRef.current || !canvasRef.current || !backgroundImage) {
       return;
     }
 
@@ -33,30 +32,29 @@ function ConfigurationForm({ inputImageRef }: ConfigurationFormProps) {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      // Set canvas size to match input image
-      canvas.width = inputImageRef.current.naturalWidth;
-      canvas.height = inputImageRef.current.naturalHeight;
+      // Set canvas size to fixed dimensions
+      canvas.width = 600;
+      canvas.height = 400;
+
+      // Fill with background color
+      ctx.fillStyle = "#f5f5f5";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw background image
-      ctx.drawImage(inputImageRef.current, 0, 0);
-
-      // Draw target images (behind old man)
-      for (const target of targetImages) {
-        const targetImg = new Image();
-        targetImg.crossOrigin = "anonymous";
-        await new Promise((resolve) => {
-          targetImg.onload = resolve;
-          targetImg.src = target.imageUrl;
-        });
-        
-        ctx.drawImage(
-          targetImg,
-          target.coordinates.x,
-          target.coordinates.y,
-          target.size.width,
-          target.size.height
-        );
-      }
+      const backgroundImg = new Image();
+      backgroundImg.crossOrigin = "anonymous";
+      await new Promise((resolve) => {
+        backgroundImg.onload = resolve;
+        backgroundImg.src = inputImageDataUrl;
+      });
+      
+      ctx.drawImage(
+        backgroundImg,
+        backgroundImage.coordinates.x,
+        backgroundImage.coordinates.y,
+        backgroundImage.size.width,
+        backgroundImage.size.height
+      );
 
       // Draw static old man
       const oldManImg = new Image();
@@ -100,13 +98,11 @@ function ConfigurationForm({ inputImageRef }: ConfigurationFormProps) {
 
   return (
     <div className="space-y-4">
-      <PresetScenarios />
       <StaticOldManControls />
-      <TargetImagePicker />
       
       <Button
         block
-        disabled={targetImages.length === 0 || status !== "READY"}
+        disabled={!backgroundImage || status !== "READY"}
         type="primary"
         size="large"
         icon={<DownloadOutlined />}

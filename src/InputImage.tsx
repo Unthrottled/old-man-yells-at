@@ -1,132 +1,67 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { DndContext } from "@dnd-kit/core";
+import { closestCenter, DndContext } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
+import { restrictToParentElement } from "@dnd-kit/modifiers";
 import { Button } from "antd";
 
-import DraggableTarget from "./DraggableTarget.tsx";
+import DraggableBackground from "./DraggableBackground.tsx";
 import StaticOldMan from "./StaticOldMan.tsx";
-import YellingZone from "./YellingZone.tsx";
-import FlipH from "./icons/FlipH.tsx";
-import FlipV from "./icons/FlipV.tsx";
-import { restrictToParentWithOffset } from "./lib/drag-modifiers.ts";
-import { getFlipTransform } from "./lib/utils.ts";
 import { useBoundStore } from "./store/index.ts";
 
 interface InputImageProps {
-  onInputImageLoad: () => void;
-
   inputImageRef: React.RefObject<HTMLImageElement>;
 }
 
-function InputImage({ onInputImageLoad, inputImageRef }: InputImageProps) {
-  const messageApi = useBoundStore((state) => state.messageApi);
-  const posthog = useBoundStore((state) => state.posthog);
+function InputImage({ inputImageRef }: InputImageProps) {
   const status = useBoundStore((state) => state.status);
+  const posthog = useBoundStore((state) => state.posthog);
   const goBackToStart = useBoundStore((state) => state.goBackToStart);
-  const imageOptions = useBoundStore((state) => state.imageOptions);
-  const toggleImageOption = useBoundStore((state) => state.toggleImageOption);
-  const inputImageDataUrl = useBoundStore((state) => state.inputImageDataUrl);
-  const targetImages = useBoundStore((state) => state.targetImages);
-  const updateCoordinates = useBoundStore((state) => state.updateCoordinates);
-
-  const imageStyle = {
-    transform: getFlipTransform(imageOptions),
-  };
-
-  function handleImageOptionsChange(
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) {
-    const field = event.currentTarget.dataset.field as string;
-    if (field !== "flipVertically" && field !== "flipHorizontally") {
-      return;
-    }
-
-    toggleImageOption(field);
-  }
+  const updateBackgroundCoordinates = useBoundStore((state) => state.updateBackgroundCoordinates);
+  const selectBackground = useBoundStore((state) => state.selectBackground);
 
   function handleRemoveInputImage() {
     posthog.capture("user_removed_input_image");
-
-    goBackToStart();
-  }
-
-  function handleInputImageError() {
-    messageApi?.warning(
-      "The file could not be loaded - make sure it's a valid image file.",
-    );
-    posthog.capture("user_uploaded_invalid_input_image");
-
     goBackToStart();
   }
 
   function handleDragEnd({ delta, active }: DragEndEvent) {
-    updateCoordinates(active.id as nanoId, delta);
+    if (active.id === "background-image") {
+      updateBackgroundCoordinates(delta);
+    }
   }
 
-  function renderTargetImage(targetImage: TargetImage) {
-    return (
-      <DraggableTarget
-        key={targetImage.id}
-        targetImage={targetImage}
-      />
-    );
+  function handleBackgroundClick() {
+    selectBackground();
   }
-
-  const isLoading = status !== "READY";
 
   return (
     <DndContext
       onDragEnd={handleDragEnd}
-      modifiers={[restrictToParentWithOffset]}
+      modifiers={[restrictToParentElement]}
+      collisionDetection={closestCenter}
     >
       <div className="flex flex-col gap-2 items-center">
-        <div className="relative select-none">
-          <img
-            style={imageStyle}
-            ref={inputImageRef}
-            src={inputImageDataUrl}
-            onError={handleInputImageError}
-            onLoad={onInputImageLoad}
-            draggable={false}
-          />
-          {targetImages.map(renderTargetImage)}
-          <YellingZone 
-            canvasWidth={inputImageRef.current?.width || 500}
-            canvasHeight={inputImageRef.current?.height || 500}
-          />
+        <div 
+          className="relative select-none bg-gray-100 rounded-lg border-2 border-dashed border-gray-300"
+          style={{
+            width: "600px",
+            height: "400px",
+            overflow: "hidden",
+          }}
+          onClick={handleBackgroundClick}
+        >
+          <DraggableBackground inputImageRef={inputImageRef} />
           <StaticOldMan 
-            canvasWidth={inputImageRef.current?.width || 500}
-            canvasHeight={inputImageRef.current?.height || 500}
+            canvasWidth={600}
+            canvasHeight={400}
           />
         </div>
         <div className="flex justify-between w-full">
-          <div className="flex gap-2">
-            <Button
-              title="Flip image horizontally"
-              size="small"
-              icon={<FlipH />}
-              data-field="flipHorizontally"
-              disabled={isLoading}
-              onClick={handleImageOptionsChange}
-            />
-            <Button
-              title="Flip image vertically"
-              size="small"
-              icon={<FlipV />}
-              data-field="flipVertically"
-              disabled={isLoading}
-              onClick={handleImageOptionsChange}
-            />
-          </div>
           <Button
-            type="dashed"
-            danger
             size="small"
-            icon={<DeleteOutlined />}
-            disabled={isLoading}
+            disabled={status !== "READY"}
             onClick={handleRemoveInputImage}
           >
-            Remove image
+            Remove Image
           </Button>
         </div>
       </div>

@@ -22,17 +22,17 @@ interface WithNanoId {
   id: nanoId;
 }
 
-type TargetImageDirection = "up" | "down" | "right" | "left";
+interface Coordinates {
+  x: number;
+  y: number;
+}
 
-type TargetImage = WithFlip &
-  WithNanoId & {
-    coordinates: Coordinates;
-    direction: TargetImageDirection;
-    isSelected: boolean;
-    imageUrl: string;
-    label?: string; // What the old man is yelling at
-    size: Size;
-  };
+// Draggable and resizable background image
+type BackgroundImage = WithNanoId & {
+  coordinates: Coordinates;
+  isSelected: boolean;
+  size: Size;
+};
 
 // Static old man configuration (no positioning)
 type StaticOldMan = {

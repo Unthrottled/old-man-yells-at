@@ -8,24 +8,15 @@ interface StaticOldManProps {
 
 function StaticOldMan({ canvasWidth }: StaticOldManProps) {
   const staticOldMan = useBoundStore((state) => state.staticOldMan);
-  const targetImages = useBoundStore((state) => state.targetImages);
+  const backgroundImage = useBoundStore((state) => state.backgroundImage);
   
   const position = getOldManPosition(staticOldMan.position, canvasWidth);
   
-  // Calculate yelling lines to targets
-  const renderYellingLines = () => {
-    if (targetImages.length === 0) return null;
-    
-    const oldManCenterX = position.x + staticOldMan.size.width / 2;
-    const oldManCenterY = position.y + staticOldMan.size.height / 2;
-    
-    return targetImages.map((target) => {
-      const targetCenterX = target.coordinates.x + target.size.width / 2;
-      const targetCenterY = target.coordinates.y + target.size.height / 2;
-      
-      return (
+  return (
+    <>
+      {/* Yelling line to background image */}
+      {backgroundImage && (
         <svg
-          key={target.id}
           style={{
             position: "absolute",
             top: 0,
@@ -38,7 +29,7 @@ function StaticOldMan({ canvasWidth }: StaticOldManProps) {
         >
           <defs>
             <marker
-              id={`arrowhead-${target.id}`}
+              id="arrowhead-bg"
               markerWidth="10"
               markerHeight="7"
               refX="9"
@@ -53,24 +44,20 @@ function StaticOldMan({ canvasWidth }: StaticOldManProps) {
             </marker>
           </defs>
           <line
-            x1={oldManCenterX}
-            y1={oldManCenterY}
-            x2={targetCenterX}
-            y2={targetCenterY}
+            x1={position.x + staticOldMan.size.width / 2}
+            y1={position.y + staticOldMan.size.height / 2}
+            x2={backgroundImage.coordinates.x + backgroundImage.size.width / 2}
+            y2={backgroundImage.coordinates.y + backgroundImage.size.height / 2}
             stroke="#ff6b6b"
             strokeWidth="2"
             strokeDasharray="5,5"
             opacity="0.7"
-            markerEnd={`url(#arrowhead-${target.id})`}
+            markerEnd="url(#arrowhead-bg)"
           />
         </svg>
-      );
-    });
-  };
-  
-  return (
-    <>
-      {renderYellingLines()}
+      )}
+      
+      {/* Old man image */}
       <div
         style={{
           position: "absolute",
@@ -79,7 +66,7 @@ function StaticOldMan({ canvasWidth }: StaticOldManProps) {
           width: staticOldMan.size.width,
           height: staticOldMan.size.height,
           zIndex: 10, // Always on top
-          pointerEvents: "none", // Don't interfere with target dragging
+          pointerEvents: "none", // Don't interfere with background dragging
         }}
         className="select-none"
       >

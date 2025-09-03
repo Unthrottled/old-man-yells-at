@@ -9,7 +9,7 @@ import FileInput from "./FileInput.tsx";
 import Footer from "./Footer.tsx";
 import InputImage from "./InputImage.tsx";
 import SettingsDrawer from "./SettingsDrawer.tsx";
-import TargetImageList from "./TargetImageList.tsx";
+import BackgroundControls from "./BackgroundControls.tsx";
 import { useBoundStore } from "./store/index.ts";
 import Title from "./Title.tsx";
 
@@ -17,7 +17,6 @@ function App() {
   const messageApi = useBoundStore((state) => state.messageApi);
   const setDrawerOpen = useBoundStore((state) => state.setDrawerOpen);
   const status = useBoundStore((state) => state.status);
-  const detectFaces = useBoundStore((state) => state.detectFaces);
   const inputImageRef = useRef<null | HTMLImageElement>(null);
   const mode = useBoundStore((state) => state.mode);
 
@@ -31,20 +30,12 @@ function App() {
   }, [mode, messageApi]);
 
   function renderInputImage() {
-    async function handleInputImageLoad() {
-      if (!inputImageRef.current) {
-        return;
-      }
-      detectFaces(inputImageRef.current);
-    }
-
     return (
       <>
         <InputImage
           inputImageRef={inputImageRef}
-          onInputImageLoad={handleInputImageLoad}
         />
-        <TargetImageList />
+        <BackgroundControls />
       </>
     );
   }

@@ -6,17 +6,17 @@ import {
   FaceDetectionSlice,
 } from "./slices/face-detection.ts";
 import { createStaticOldManSlice, StaticOldManSlice } from "./slices/static-old-man.ts";
-import { createTargetImageSlice, TargetImageSlice } from "./slices/target-image.ts";
+import { createBackgroundImageSlice, BackgroundImageSlice } from "./slices/background-image.ts";
 import { createImageSlice, ImageSlice } from "./slices/image.ts";
 import { createThemeSlice, ThemeSlice } from "./slices/theme.ts";
 
 export const useBoundStore = create<
-  AppSlice & FaceDetectionSlice & StaticOldManSlice & TargetImageSlice & ImageSlice & ThemeSlice
+  AppSlice & FaceDetectionSlice & StaticOldManSlice & BackgroundImageSlice & ImageSlice & ThemeSlice
 >((...a) => ({
   ...createAppSlice(...a),
   ...createFaceDetectionSlice(...a),
   ...createStaticOldManSlice(...a),
-  ...createTargetImageSlice(...a),
+  ...createBackgroundImageSlice(...a),
   ...createImageSlice(...a),
   ...createThemeSlice(...a),
 }));

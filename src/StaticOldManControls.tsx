@@ -8,7 +8,7 @@ function StaticOldManControls() {
   
   const status = useBoundStore((state) => state.status);
   const staticOldMan = useBoundStore((state) => state.staticOldMan);
-  const targetImages = useBoundStore((state) => state.targetImages);
+  const backgroundImage = useBoundStore((state) => state.backgroundImage);
   const updateExpression = useBoundStore((state) => state.updateExpression);
   const updateYellingIntensity = useBoundStore((state) => state.updateYellingIntensity);
   const updatePosition = useBoundStore((state) => state.updatePosition);
@@ -100,9 +100,9 @@ function StaticOldManControls() {
             className="w-full"
           />
           <div className="text-xs text-gray-500 mt-1">
-            {targetImages.length > 0 
-              ? `Yelling at ${targetImages.length} target${targetImages.length > 1 ? 's' : ''}`
-              : "Add targets to yell at!"
+            {backgroundImage 
+              ? "Yelling at your background image"
+              : "Upload an image to yell at!"
             }
           </div>
         </div>

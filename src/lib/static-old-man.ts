@@ -76,7 +76,7 @@ export function getOldManImageUrl(): string {
 export function getOldManPosition(position: "left" | "right" | "center", canvasWidth: number, canvasHeight: number = 400): { x: number; y: number } {
   const oldManWidth = DEFAULT_OLD_MAN_SIZE;
   const oldManHeight = DEFAULT_OLD_MAN_SIZE * 1.2;
-  const padding = 20;
+  const padding = Math.min(10, canvasWidth * 0.05); // Smaller padding for small canvases
   
   switch (position) {
     case "left":

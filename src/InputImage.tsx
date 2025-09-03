@@ -41,16 +41,16 @@ function InputImage({ inputImageRef }: InputImageProps) {
         <div 
           className="relative select-none bg-gray-100 rounded-lg border-2 border-dashed border-gray-300"
           style={{
-            width: "600px",
-            height: "400px",
+            width: "150px",
+            height: "150px",
             overflow: "hidden",
           }}
           onClick={handleBackgroundClick}
         >
           <DraggableBackground inputImageRef={inputImageRef} />
           <StaticOldMan 
-            canvasWidth={600}
-            canvasHeight={400}
+            canvasWidth={150}
+            canvasHeight={150}
           />
         </div>
         <div className="flex justify-between w-full">

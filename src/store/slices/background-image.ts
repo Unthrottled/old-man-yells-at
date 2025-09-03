@@ -54,7 +54,6 @@ export const createBackgroundImageSlice: StateCreator<BackgroundImageSlice> = (s
           x: x + delta.x,
           y: y + delta.y,
         };
-        draft.posthog.capture("user_dragged_background_image");
       }),
     ),
     
@@ -64,7 +63,6 @@ export const createBackgroundImageSlice: StateCreator<BackgroundImageSlice> = (s
         if (!draft.backgroundImage) return;
         
         draft.backgroundImage.size = size;
-        draft.posthog.capture("user_resized_background_image");
       }),
     ),
     
@@ -74,7 +72,6 @@ export const createBackgroundImageSlice: StateCreator<BackgroundImageSlice> = (s
         if (!draft.backgroundImage) return;
         
         draft.backgroundImage.isSelected = !draft.backgroundImage.isSelected;
-        draft.posthog.capture("user_selected_background_image");
       }),
     ),
 });

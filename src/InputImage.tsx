@@ -13,13 +13,11 @@ interface InputImageProps {
 
 function InputImage({ inputImageRef }: InputImageProps) {
   const status = useBoundStore((state) => state.status);
-  const posthog = useBoundStore((state) => state.posthog);
   const goBackToStart = useBoundStore((state) => state.goBackToStart);
   const updateBackgroundCoordinates = useBoundStore((state) => state.updateBackgroundCoordinates);
   const selectBackground = useBoundStore((state) => state.selectBackground);
 
   function handleRemoveInputImage() {
-    posthog.capture("user_removed_input_image");
     goBackToStart();
   }
 

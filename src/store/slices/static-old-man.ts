@@ -16,28 +16,19 @@ export const createStaticOldManSlice: StateCreator<StaticOldManSlice> = (set) =>
   updateExpression: (expression: string) =>
     set(
       produce((draft) => {
-        draft.staticOldMan.expression = expression;
-        draft.posthog.capture("user_changed_old_man_expression", {
-          expression,
-        });
+        draft.staticOldMan.expression = expression as any;
       }),
     ),
   updateYellingIntensity: (intensity: number) =>
     set(
       produce((draft) => {
         draft.staticOldMan.yellingIntensity = intensity;
-        draft.posthog.capture("user_changed_yelling_intensity", {
-          intensity,
-        });
       }),
     ),
   updatePosition: (position: "left" | "right" | "center") =>
     set(
       produce((draft) => {
         draft.staticOldMan.position = position;
-        draft.posthog.capture("user_changed_old_man_position", {
-          position,
-        });
       }),
     ),
   updateOldManSize: (size: Size) =>

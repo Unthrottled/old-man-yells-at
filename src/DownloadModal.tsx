@@ -1,83 +1,63 @@
 import { DownloadOutlined } from "@ant-design/icons";
 import { Button, Modal } from "antd";
-import { saveAs } from "file-saver";
-import party from "party-js";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 
-import { generateOutputFilename, getSuccessMessage } from "./lib/utils.ts";
-import { useBoundStore } from "./store/index.ts";
+interface DownloadModalProps {
+  open: boolean;
+  onClose: () => void;
+  imageDataUrl: string;
+}
 
-function DownloadModal() {
-  const posthog = useBoundStore((state) => state.posthog);
-  const mode = useBoundStore((state) => state.mode);
-  const successCount = useBoundStore((state) => state.successCount);
-  const status = useBoundStore((state) => state.status);
-  const setStatus = useBoundStore((state) => state.setStatus);
-  const inputFile = useBoundStore((state) => state.inputFile);
-  const outputImage = useBoundStore((state) => state.outputImage);
-  const outputImageDataUrl = useBoundStore((state) => state.outputImageDataUrl);
+function DownloadModal({ open, onClose, imageDataUrl }: DownloadModalProps) {
+  const [downloadUrl, setDownloadUrl] = useState<string>("");
 
-  const outputImageRef = useRef<null | HTMLImageElement>(null);
-
-  function closeModal() {
-    posthog.capture("user_closed_download_modal");
-    setStatus("READY");
-  }
-
-  function downloadOutput() {
-    posthog.capture("user_downloaded_emoji");
-    if (outputImage && inputFile) {
-      saveAs(outputImage, generateOutputFilename(inputFile));
+  useEffect(() => {
+    if (open && imageDataUrl) {
+      setDownloadUrl(imageDataUrl);
     }
-    closeModal();
+  }, [open, imageDataUrl]);
+
+  function handleClose() {
+    onClose();
   }
 
-  function onModalOpenChange(open: boolean) {
-    if (open && outputImageRef.current) {
-      posthog.capture("user_opened_download_modal");
-
-      if (mode === "HEDGEHOG") {
-        const hedgehog = document.createElement("span");
-        hedgehog.innerText = "🦔";
-        hedgehog.style.fontSize = "48px";
-        const heart = document.createElement("span");
-        heart.innerText = "💖";
-        heart.style.fontSize = "24px";
-        party.confetti(outputImageRef.current, { shapes: [hedgehog, heart] });
-      } else {
-        party.confetti(outputImageRef.current);
-      }
+  function handleDownload() {
+    if (downloadUrl) {
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = "old-man-yells-at.png";
+      a.click();
     }
-  }
-
-  function renderOutputImage() {
-    return (
-      <div className="flex flex-col items-center">
-        <img ref={outputImageRef} src={outputImageDataUrl} />
-      </div>
-    );
   }
 
   return (
     <Modal
-      title={getSuccessMessage(successCount)}
-      open={status === "DONE"}
-      onCancel={closeModal}
-      destroyOnClose
-      afterOpenChange={onModalOpenChange}
+      title="Download Your Image"
+      open={open}
+      onCancel={handleClose}
       footer={[
+        <Button key="close" onClick={handleClose}>
+          Close
+        </Button>,
         <Button
           key="download"
           type="primary"
-          onClick={downloadOutput}
           icon={<DownloadOutlined />}
+          onClick={handleDownload}
         >
           Download
         </Button>,
       ]}
-      width={304}
     >
-      {renderOutputImage()}
+      {downloadUrl && (
+        <div className="text-center">
+          <img
+            src={downloadUrl}
+            alt="Generated"
+            className="max-w-full h-auto rounded"
+          />
+        </div>
+      )}
     </Modal>
   );
 }

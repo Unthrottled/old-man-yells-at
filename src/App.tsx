@@ -4,7 +4,6 @@ import { Button } from "antd";
 import { useEffect, useRef } from "react";
 
 import ConfigurationForm from "./ConfigurationForm.tsx";
-import DownloadModal from "./DownloadModal.tsx";
 import FileInput from "./FileInput.tsx";
 import Footer from "./Footer.tsx";
 import InputImage from "./InputImage.tsx";
@@ -63,7 +62,6 @@ function App() {
             </div>
             <ConfigurationForm inputImageRef={inputImageRef} />
           </div>
-          <DownloadModal />
         </div>
       </div>
       <Footer />

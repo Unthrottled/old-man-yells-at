@@ -1,121 +1,105 @@
-import { SmileOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Spin, Typography, Upload } from "antd";
-import type { UploadProps } from "antd";
+import { LoadingOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Input, Upload } from "antd";
 import { useState } from "react";
 
-import groupImageUrl from "./assets/example-group.jpg";
-import personImageUrl from "./assets/example-person.jpg";
-import portraitImageUrl from "./assets/example-portrait.jpg";
 import { useBoundStore } from "./store/index.ts";
 
-const { Link, Paragraph } = Typography;
-const { Dragger } = Upload;
+import exampleGroupImageUrl from "./assets/example-group.jpg";
+import examplePersonImageUrl from "./assets/example-person.jpg";
+import examplePortraitImageUrl from "./assets/example-portrait.jpg";
 
-const EXAMPLE_IMAGES = [personImageUrl, portraitImageUrl, groupImageUrl];
-
-export default function FileInput() {
+function FileInput() {
   const [imageUrl, setImageUrl] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const posthog = useBoundStore((state) => state.posthog);
-  const status = useBoundStore((state) => state.status);
-  const setStatus = useBoundStore((state) => state.setStatus);
+  const messageApi = useBoundStore((state) => state.messageApi);
   const setInputFile = useBoundStore((state) => state.setInputFile);
 
-  function handleImageUrlChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setImageUrl(event.target.value);
+  async function handleSubmitImageUrl() {
+    if (!imageUrl) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], "image", { type: blob.type });
+      setInputFile(file);
+    } catch (error) {
+      messageApi?.error("Failed to load image from URL");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function handleImageUrlSubmit() {
-    setStatus("LOADING");
-
-    posthog.capture("user_submitted_image_url");
-    const response = await fetch(imageUrl);
-    const data = await response.blob();
-    const contentType = response.headers.get("content-type") || "image/jpeg";
-    const metadata = {
-      type: contentType,
-    };
-    const file = new File([data], "image", metadata);
-    handleFileSelected(file);
+  function handleSelectExampleImage(exampleImageUrl: string) {
+    setImageUrl(exampleImageUrl);
+    handleSubmitImageUrl();
   }
 
-  async function handleExampleClick(
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-  ) {
-    const imageUrl = event.currentTarget.dataset.url as string;
-    posthog.capture("user_selected_example_image", {
-      imageUrl,
-    });
-    const response = await fetch(imageUrl);
-    const data = await response.blob();
-    const metadata = {
-      type: "image/jpeg",
-    };
-    const file = new File([data], "example.jpg", metadata);
-    handleFileSelected(file);
-  }
+  const exampleImages = [
+    { url: examplePersonImageUrl, label: "Person" },
+    { url: exampleGroupImageUrl, label: "Group" },
+    { url: examplePortraitImageUrl, label: "Portrait" },
+  ];
 
-  function handleFileSelected(selectedFile: File) {
-    setStatus("LOADING");
-    setInputFile(selectedFile);
-  }
-
-  const props: UploadProps = {
-    className: "flex flex-1",
-    name: "file",
-    multiple: false,
-    accept: "image/png, image/jpeg",
-    showUploadList: false,
-    customRequest: (info) => {
-      handleFileSelected(info.file as File);
-    },
-  };
-
-  function renderExample(imageUrl: string) {
-    return (
-      <Link key={imageUrl} data-url={imageUrl} onClick={handleExampleClick}>
-        <img src={imageUrl} />
-      </Link>
-    );
-  }
-
-  const fileInput = (
-    <>
-      <Dragger disabled={status === "LOADING"} {...props}>
+  return (
+    <div className="flex flex-col gap-4 items-center">
+      <Upload.Dragger
+        name="file"
+        multiple={false}
+        showUploadList={false}
+        beforeUpload={(file) => {
+          setInputFile(file);
+          return false;
+        }}
+        className="w-full max-w-md"
+      >
         <p className="ant-upload-drag-icon">
-          <SmileOutlined />
+          <UploadOutlined />
         </p>
-        <p className="ant-upload-text">
-          Click or drag file to this area to start!
+        <p className="ant-upload-text">Click or drag file to this area to upload</p>
+        <p className="ant-upload-hint">
+          Support for a single image file. JPG, PNG, GIF, etc.
         </p>
-      </Dragger>
-      <Paragraph className="text-center my-2">Or paste an image URL:</Paragraph>
-      <Space.Compact className="w-full">
+      </Upload.Dragger>
+
+      <div className="text-center text-gray-500">or</div>
+
+      <div className="flex gap-2 w-full max-w-md">
         <Input
-          placeholder="https://example.com/image.jpg"
+          placeholder="Enter image URL"
           value={imageUrl}
-          onChange={handleImageUrlChange}
+          onChange={(e) => setImageUrl(e.target.value)}
+          onPressEnter={handleSubmitImageUrl}
         />
         <Button
           type="primary"
-          onClick={handleImageUrlSubmit}
-          disabled={imageUrl.length === 0}
+          onClick={handleSubmitImageUrl}
+          loading={loading}
+          icon={loading ? <LoadingOutlined /> : undefined}
         >
-          Submit
+          Load
         </Button>
-      </Space.Compact>
-      <Paragraph className="text-center my-2">Or try these examples:</Paragraph>
-      <div className="grid grid-cols-3 gap-2 items-center">
-        {EXAMPLE_IMAGES.map(renderExample)}
       </div>
-    </>
+
+      <div className="text-center text-gray-500">or try an example</div>
+
+      <div className="flex gap-2 flex-wrap justify-center">
+        {exampleImages.map((example) => (
+          <Button
+            key={example.url}
+            size="small"
+            onClick={() => handleSelectExampleImage(example.url)}
+          >
+            {example.label}
+          </Button>
+        ))}
+      </div>
+    </div>
   );
-
-  if (status === "START") {
-    return (
-      <Spin tip="Loading AI models for face detection...">{fileInput}</Spin>
-    );
-  }
-
-  return fileInput;
 }
+
+export default FileInput;

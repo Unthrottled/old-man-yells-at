@@ -1,132 +1,262 @@
-# Migration Plan: Deal With It → Old Man Yells At Generator
+# UX Migration Plan: Static Old Man + Draggable Target Image
 
-## Phase 1: Core Data Model Migration
+## Overview
+Transform the user experience from dragging old men around to having a static old man yelling at a draggable target image that moves behind the old man. **This will be a static image generator only - all GIF/animation features will be removed.**
+
+## Current State vs Target State
+
+### Current UX
+- Multiple draggable old men
+- Static background image
+- Old men positioned on top of image
+- **GIF generation with animations**
+
+### Target UX  
+- Single static old man (fixed position)
+- Draggable target image/element behind old man
+- Old man appears to be yelling "at" the target
+- **Static image output only (PNG/JPG)**
+
+## Phase 1: Data Model Changes
 
 ### 1.1 Update Type Definitions
-- [ ] Rename `Glasses` → `OldMan` in `src/index.d.ts`
-- [ ] Update `GlassesDirection` → `OldManDirection` 
-- [ ] Add new properties: `expression`, `yellingIntensity`
-- [ ] Remove glasses-specific properties: `styleColor`
+- [ ] Remove `oldMenList` concept (single old man only)
+- [ ] Add `TargetImage` type for draggable element
+- [ ] Update store to have single `oldMan` + `targetImage`
+- [ ] Remove old man positioning properties (now static)
 
-### 1.2 Update Store Slice
-- [ ] Rename `src/store/slices/glasses.ts` → `old-man.ts`
-- [ ] Update interface: `GlassesSlice` → `OldManSlice`
-- [ ] Rename all methods and properties:
-  - `glassesList` → `oldMenList`
-  - `addDefault()` → `addDefaultOldMan()`
-  - Update all function signatures
+```typescript
+type TargetImage = {
+  id: string;
+  coordinates: { x: number; y: number };
+  size: { width: number; height: number };
+  imageUrl: string;
+  label?: string; // What the old man is yelling at
+};
 
-### 1.3 Update Utilities
-- [ ] Rename `src/lib/glasses.ts` → `old-man.ts`
-- [ ] Update `getDefaultGlasses()` → `getDefaultOldMan()`
-- [ ] Update default positioning logic for old man character
-- [ ] Remove glasses-specific aspect ratio calculations
+// Old man becomes static configuration
+type StaticOldMan = {
+  expression: "angry" | "furious" | "disappointed" | "outraged";
+  yellingIntensity: number;
+  position: "left" | "right" | "center"; // Fixed positions
+  size: { width: number; height: number };
+};
+```
 
-## Phase 2: Component Migration
+### 1.2 Update Store Slices
+- [ ] Replace `OldManSlice` with `StaticOldManSlice`
+- [ ] Create new `TargetImageSlice` for draggable targets
+- [ ] Remove old man positioning/dragging logic
+- [ ] Add target image manipulation methods
 
-### 2.1 Rename Core Components
-- [ ] `SortableGlassesList.tsx` → `SortableOldMenList.tsx`
-- [ ] `GlassesDraggable.tsx` → `OldManDraggable.tsx`
-- [ ] `SortableGlassesItem.tsx` → `SortableOldManItem.tsx`
+## Phase 2: Component Architecture Changes
 
-### 2.2 Update Component Logic
-- [ ] Replace all glasses references with old man terminology
-- [ ] Update drag handles and positioning logic
-- [ ] Modify size constraints for old man character
-- [ ] Update selection and highlighting behavior
+### 2.1 Remove Old Man Dragging
+- [ ] Remove `OldManDraggable.tsx` component
+- [ ] Remove old man drag and drop logic
+- [ ] Remove old man positioning controls
 
-### 2.3 Remove/Replace Glasses-Specific Components
-- [ ] Remove `GlassesColorPicker.tsx` (old man doesn't need color picker)
-- [ ] Create `OldManExpressionPicker.tsx` for facial expressions
-- [ ] Update `ConfigurationForm.tsx` with old man options
+### 2.2 Create Static Old Man Component
+- [ ] Create `StaticOldMan.tsx` - fixed position old man
+- [ ] Position old man at predetermined locations (left/right/center)
+- [ ] Only allow expression and intensity changes
+- [ ] Remove resize handles and drag listeners
 
-## Phase 3: Asset Management
+### 2.3 Create Target Image System
+- [ ] Create `DraggableTarget.tsx` - draggable image/element
+- [ ] Create `TargetImagePicker.tsx` - select what to yell at
+- [ ] Create `TargetImageList.tsx` - manage multiple targets
+- [ ] Add target image upload/selection
 
-### 3.1 Asset Replacement
-- [ ] Remove unused glasses assets:
-  - `glasses.png`, `glasses.svg`
-  - `glasses-small.png`, `glasses-symmetrical.png`
-  - `glasses-symmetrical-party.png`
-- [ ] Create old man expression variants from base `old-man-yells-at.png`
-- [ ] Add different yelling intensity assets
+### 2.4 Update Layout
+- [ ] Redesign canvas layout with static old man
+- [ ] Position old man in fixed location (e.g., left side)
+- [ ] Target images render behind old man (lower z-index)
+- [ ] Add visual indicators showing yelling direction
 
-### 3.2 Update Asset References
-- [ ] Update default asset URL in old-man utilities
-- [ ] Update asset imports across components
-- [ ] Update example images if needed
+## Phase 3: Interaction Model
 
-## Phase 4: UI/UX Updates
+### 3.1 Target Selection
+- [ ] Predefined target categories:
+  - "Technology" (phones, computers, etc.)
+  - "Weather" (clouds, rain, etc.) 
+  - "People" (generic figures)
+  - "Objects" (cars, buildings, etc.)
+  - "Custom" (user upload)
 
-### 4.1 Text and Labels
-- [ ] Update `index.html` title: "Old Man Yells At Generator"
-- [ ] Update all component text references
-- [ ] Update button labels and tooltips
-- [ ] Update configuration form labels
+### 3.2 Positioning Logic
+- [ ] Old man fixed at optimal yelling position
+- [ ] Target images draggable within "yelling zone"
+- [ ] Snap-to-grid for better alignment
+- [ ] Visual guides showing effective yelling area
 
-### 4.2 Styling Updates
-- [ ] Update drag handles for old man character
-- [ ] Adjust default sizing for old man vs glasses
-- [ ] Update selection indicators
-- [ ] Modify positioning constraints
+### 3.3 Static Image Generation
+- [ ] Remove all GIF generation logic
+- [ ] Remove animation-related configuration options
+- [ ] Implement static image export (PNG/JPG)
+- [ ] Remove frame-based rendering system
+- [ ] Simplify to single-frame composition
 
-## Phase 5: Feature Enhancements
+## Phase 4: UI/UX Improvements
 
-### 5.1 Old Man Specific Features
-- [ ] Add expression picker (angry, furious, disappointed, etc.)
-- [ ] Add yelling intensity slider
-- [ ] Add speech bubble option (optional)
+### 4.1 Control Panel Redesign
+- [ ] Single old man configuration section
+- [ ] Target image selection and management
+- [ ] Simplified positioning controls for targets only
+- [ ] Add "What is the old man yelling at?" input field
+
+### 4.2 Visual Enhancements
+- [ ] Add speech bubble or yelling lines from old man to target (static)
+- [ ] Highlight "yelling zone" where targets can be placed
+- [ ] Add visual feedback when dragging targets
+- [ ] Show old man "looking at" the target
+- [ ] Remove all animation controls and timeline UI
+
+### 4.3 Preset Scenarios
+- [ ] "Yelling at phone" preset
+- [ ] "Yelling at weather" preset  
+- [ ] "Yelling at traffic" preset
+- [ ] "Yelling at technology" preset
+
+## Phase 5: Content and Assets
+
+### 5.1 Target Image Library
+- [ ] Curated collection of "yellable" objects
+- [ ] Categorized by theme (tech, weather, people, etc.)
+- [ ] Consistent art style matching old man
+- [ ] Transparent backgrounds for better compositing
+
+### 5.2 Old Man Variations
+- [ ] Different old man poses for different scenarios
+- [ ] Pointing gestures toward target area
+- [ ] Varied expressions based on target type
 - [ ] Multiple old man character styles
 
-### 5.2 Positioning Logic
-- [ ] Update face detection positioning for old man placement
-- [ ] Adjust default positioning relative to detected faces
-- [ ] Update collision detection for multiple old men
+## Phase 6: Advanced Features
 
-## Phase 6: Testing & Polish
+### 6.1 Smart Positioning
+- [ ] Auto-position targets based on old man's "gaze"
+- [ ] Suggest optimal target placement
+- [ ] Collision detection between multiple targets
 
-### 6.1 Functionality Testing
-- [ ] Test drag and drop with old man characters
-- [ ] Test GIF generation with old men
-- [ ] Test face detection positioning
-- [ ] Test multiple old men scenarios
+### 6.2 Context Awareness
+- [ ] Old man expression changes based on target type
+- [ ] Intensity auto-adjusts for different scenarios
+- [ ] Suggested captions based on target selection
 
-### 6.2 Final Updates
-- [ ] Update README examples
-- [ ] Update configuration options
-- [ ] Test all download formats
-- [ ] Update analytics events (posthog)
+## Implementation Priority
 
-## Implementation Order
+### High Priority (Core UX Change)
+1. **Phase 1**: Data model transformation
+2. **Phase 2**: Component architecture changes  
+3. **Phase 3**: Basic interaction model
 
-1. **Start with Phase 1** - Core data model changes
-2. **Phase 2** - Component renames and basic functionality
-3. **Phase 3** - Asset management
-4. **Phase 4** - UI polish
-5. **Phase 5** - New features
-6. **Phase 6** - Testing and final polish
+### Medium Priority (Polish)
+4. **Phase 4**: UI improvements
+5. **Phase 5**: Content library
 
-## Key Files to Modify
+### Low Priority (Enhancement)
+6. **Phase 6**: Advanced features
 
-### Critical Path (Must Change)
-- `src/index.d.ts` - Type definitions
-- `src/store/slices/glasses.ts` → `old-man.ts`
-- `src/store/index.ts` - Store imports
-- `src/lib/glasses.ts` → `old-man.ts`
+## Phase 7: GIF/Animation Removal
 
-### Component Updates
-- All components with "Glasses" in filename
-- `ConfigurationForm.tsx`
-- `App.tsx` - Update imports and references
+### 7.1 Remove GIF Generation System
+- [ ] Remove `src/worker/gif.worker.ts` entirely
+- [ ] Remove `src/worker/utils.ts` frame rendering logic
+- [ ] Remove `gifwrap` dependency from package.json
+- [ ] Remove all animation-related imports
 
-### Assets & Config
-- `index.html` - Title update
-- Asset files in `src/assets/`
-- Any hardcoded asset references
+### 7.2 Remove Animation Configuration
+- [ ] Remove `ConfigurationOptions` type (looping, frameDelay, etc.)
+- [ ] Remove animation controls from `ConfigurationForm.tsx`
+- [ ] Remove `DownloadModal.tsx` GIF options
+- [ ] Simplify to basic image export options
+
+### 7.3 Update Export System
+- [ ] Replace GIF generation with static image export
+- [ ] Use HTML5 Canvas `toBlob()` for PNG/JPG export
+- [ ] Remove frame-based composition logic
+- [ ] Simplify to single canvas render
+
+## Technical Considerations
+
+### Breaking Changes
+- Complete data model restructure
+- All existing old man positioning logic removed
+- **Complete removal of GIF/animation system**
+- New drag and drop system for targets
+- **Simplified static image generation**
+
+### Dependencies to Remove
+- `gifwrap` - GIF generation library
+- Animation-related worker files
+- Frame timing and looping logic
+
+### New Dependencies (Optional)
+- Image compression libraries for better PNG/JPG output
+- Canvas-to-image conversion utilities
+
+### Migration Strategy
+- Create new branch for UX transformation
+- Implement alongside existing system initially
+- Feature flag to switch between old/new UX
+- Gradual rollout with user feedback
+
+## User Story Examples
+
+### Before (Current)
+"I want to add multiple old men to my image and position them where people's faces are"
+
+### After (Target)
+"I want the old man to yell at my phone, so I'll drag the phone image to where I want it and the old man will appear to be yelling at it"
+
+## Success Metrics
+- Reduced complexity (single old man vs multiple)
+- More intuitive interaction (drag the target, not the old man)
+- Better storytelling (clear "yelling at X" narrative)
+- Easier content creation (predefined targets vs positioning)
+
+## File Changes Required
+
+### Core Files to Modify
+- `src/index.d.ts` - Update type definitions
+- `src/store/slices/old-man.ts` → `static-old-man.ts`
+- `src/store/slices/target-image.ts` - New slice
+- `src/store/index.ts` - Update store composition
+
+### Components to Replace
+- `src/OldManDraggable.tsx` → `src/StaticOldMan.tsx`
+- `src/SortableOldMenList.tsx` → `src/TargetImageList.tsx`
+- `src/SortableOldManItem.tsx` → `src/TargetImageItem.tsx`
+
+### New Components to Create
+- `src/DraggableTarget.tsx`
+- `src/TargetImagePicker.tsx`
+- `src/YellingZone.tsx`
+- `src/PresetScenarios.tsx`
+
+### Assets to Add
+- Target image library in `src/assets/targets/`
+- Static old man poses in `src/assets/old-man-poses/`
+- Yelling effect graphics (speech bubbles, lines)
+
+### Components to Remove Entirely
+- `src/worker/gif.worker.ts` - GIF generation worker
+- `src/worker/utils.ts` - Animation frame utilities  
+- Animation controls in `src/ConfigurationForm.tsx`
+- GIF options in `src/DownloadModal.tsx`
+
+### Dependencies to Remove
+- `gifwrap` - GIF generation
+- Animation-related configuration types
+- Frame timing logic
 
 ## Estimated Effort
-- **Phase 1-2**: 2-3 hours (core functionality)
-- **Phase 3-4**: 1-2 hours (assets and UI)
-- **Phase 5**: 2-4 hours (new features)
-- **Phase 6**: 1 hour (testing)
+- **Phase 1-2**: 4-6 hours (core restructure)
+- **Phase 3**: 2-3 hours (interaction model, simplified without animation)
+- **Phase 4**: 2-3 hours (UI polish)
+- **Phase 5**: 4-6 hours (content creation)
+- **Phase 6**: 3-5 hours (advanced features)
+- **Phase 7**: 2-3 hours (GIF removal and static export)
 
-**Total**: 6-10 hours for complete migration
+**Total**: 17-26 hours for complete UX transformation + animation removal

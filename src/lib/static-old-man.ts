@@ -3,7 +3,7 @@ import oldManImageUrl from "../assets/old-man-yells-at.png";
 export const DEFAULT_OLD_MAN_SIZE = 150;
 export const DEFAULT_YELLING_INTENSITY = 5;
 export const DEFAULT_EXPRESSION = "angry";
-export const DEFAULT_POSITION = "left";
+export const DEFAULT_POSITION = "right";
 
 export function getDefaultStaticOldMan(): StaticOldMan {
   return {
@@ -73,19 +73,20 @@ export function getOldManImageUrl(): string {
   return oldManImageUrl;
 }
 
-export function getOldManPosition(position: "left" | "right" | "center", canvasWidth: number): { x: number; y: number } {
+export function getOldManPosition(position: "left" | "right" | "center", canvasWidth: number, canvasHeight: number = 400): { x: number; y: number } {
   const oldManWidth = DEFAULT_OLD_MAN_SIZE;
+  const oldManHeight = DEFAULT_OLD_MAN_SIZE * 1.2;
   const padding = 20;
   
   switch (position) {
     case "left":
-      return { x: padding, y: 50 };
+      return { x: padding, y: canvasHeight - oldManHeight - padding };
     case "right":
-      return { x: canvasWidth - oldManWidth - padding, y: 50 };
+      return { x: canvasWidth - oldManWidth - padding, y: canvasHeight - oldManHeight - padding };
     case "center":
-      return { x: (canvasWidth - oldManWidth) / 2, y: 50 };
+      return { x: (canvasWidth - oldManWidth) / 2, y: canvasHeight - oldManHeight - padding };
     default:
-      return { x: padding, y: 50 };
+      return { x: canvasWidth - oldManWidth - padding, y: canvasHeight - oldManHeight - padding };
   }
 }
 

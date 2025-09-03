@@ -6,11 +6,11 @@ interface StaticOldManProps {
   canvasHeight: number;
 }
 
-function StaticOldMan({ canvasWidth }: StaticOldManProps) {
+function StaticOldMan({ canvasWidth, canvasHeight }: StaticOldManProps) {
   const staticOldMan = useBoundStore((state) => state.staticOldMan);
   const backgroundImage = useBoundStore((state) => state.backgroundImage);
   
-  const position = getOldManPosition(staticOldMan.position, canvasWidth);
+  const position = getOldManPosition(staticOldMan.position, canvasWidth, canvasHeight);
   
   return (
     <>
